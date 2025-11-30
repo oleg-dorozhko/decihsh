@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PUHLYA Hash Verifier 🍩</title>
+    <title>PUHLYA Hash Extractor 🔍</title>
     <style>
         * {
             margin: 0;
@@ -16,15 +16,12 @@
             background: linear-gradient(135deg, #1a0a1e 0%, #2d1b3d 50%, #1a0a1e 100%);
             color: #fff;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
 
         .container {
-            max-width: 800px;
-            width: 100%;
+            max-width: 900px;
+            margin: 40px auto;
             background: rgba(40, 20, 50, 0.8);
             backdrop-filter: blur(20px);
             border-radius: 24px;
@@ -34,7 +31,7 @@
         }
 
         h1 {
-            font-size: 3em;
+            font-size: 2.5em;
             text-align: center;
             margin-bottom: 10px;
             background: linear-gradient(135deg, #ff69b4, #ffd700);
@@ -50,56 +47,53 @@
             font-size: 1.1em;
         }
 
-        .input-group {
+        .upload-zone {
+            border: 3px dashed rgba(255, 105, 180, 0.5);
+            border-radius: 16px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(20, 10, 30, 0.4);
             margin-bottom: 30px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 10px;
-            color: #ffd700;
-            font-weight: 600;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid rgba(255, 105, 180, 0.3);
-            border-radius: 12px;
-            background: rgba(20, 10, 30, 0.6);
-            color: #fff;
-            font-size: 1em;
-            transition: all 0.3s;
-            font-family: 'Courier New', monospace;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
+        .upload-zone:hover {
             border-color: #ff69b4;
-            box-shadow: 0 0 20px rgba(255, 105, 180, 0.4);
+            background: rgba(255, 105, 180, 0.1);
+            transform: scale(1.02);
         }
 
-        .btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
+        .upload-zone.dragover {
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+            transform: scale(1.05);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2em;
+            color: #ffb6c1;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-container {
+            margin: 30px 0;
+            display: none;
+        }
+
+        .preview-image {
+            max-width: 100%;
             border-radius: 12px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #ff69b4, #c864ff);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
         }
 
         .result {
@@ -121,14 +115,14 @@
             }
         }
 
-        .result.valid {
+        .result.found {
             background: rgba(0, 255, 150, 0.1);
             border: 2px solid rgba(0, 255, 150, 0.5);
         }
 
-        .result.invalid {
-            background: rgba(255, 50, 100, 0.1);
-            border: 2px solid rgba(255, 50, 100, 0.5);
+        .result.not-found {
+            background: rgba(255, 150, 50, 0.1);
+            border: 2px solid rgba(255, 150, 50, 0.5);
         }
 
         .result-title {
@@ -139,281 +133,282 @@
             gap: 10px;
         }
 
-        .result-details {
+        .hash-display {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            margin-top: 15px;
+            border-left: 4px solid #ff69b4;
+        }
+
+        .copy-btn {
+            margin-top: 15px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #ff69b4, #c864ff);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 105, 180, 0.5);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
             background: rgba(0, 0, 0, 0.3);
             padding: 15px;
             border-radius: 8px;
-            margin-top: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            line-height: 1.6;
+            border-left: 3px solid #ffd700;
         }
 
-        .result-details div {
-            margin: 8px 0;
-        }
-
-        .result-details strong {
-            color: #ffd700;
-        }
-
-        .avatar-preview {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .avatar-canvas {
-            border-radius: 50%;
-            border: 3px solid #ff69b4;
-            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
-        }
-
-        .examples {
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-        }
-
-        .examples h3 {
-            color: #ffd700;
-            margin-bottom: 10px;
-        }
-
-        .example-hash {
+        .stat-label {
             color: #ffb6c1;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 6px;
-            transition: all 0.2s;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #ffd700;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loader.active {
             display: block;
-            margin: 5px 0;
         }
 
-        .example-hash:hover {
-            background: rgba(255, 105, 180, 0.2);
+        .spinner {
+            border: 4px solid rgba(255, 105, 180, 0.2);
+            border-top: 4px solid #ff69b4;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
 
-        .icon {
-            font-size: 1.5em;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🍩 PUHLYA Verifier</h1>
-        <p class="subtitle">Перевірка та візуалізація IPFS хешів</p>
+        <h1>🔍 PUHLYA Hash Extractor</h1>
+        <p class="subtitle">Перевірка зображень на наявність прихованого IPFS хешу</p>
 
-        <div class="input-group">
-            <label for="hashInput">IPFS Hash (CIDv1):</label>
-            <input 
-                type="text" 
-                id="hashInput" 
-                placeholder="bafkreifpxmsccr4by7nhwnubwtjur4ofajchqouj6xhmw5oq7v6zlggoby"
-                value="bafkreifpxmsccr4by7nhwnubwtjur4ofajchqouj6xhmw5oq7v6zlggoby"
-            >
+        <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">
+                <strong>Перетягни зображення сюди</strong><br>
+                або клікни для вибору файлу
+            </div>
         </div>
 
-        <button class="btn btn-primary" onclick="verifyHash()">
-            🔍 Перевірити хеш
-        </button>
+        <input type="file" id="fileInput" accept="image/*">
+
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <div style="color: #ffb6c1;">Аналіз зображення...</div>
+        </div>
+
+        <div class="preview-container" id="previewContainer">
+            <img id="previewImage" class="preview-image" alt="Preview">
+        </div>
 
         <div id="result" class="result"></div>
-
-        <div class="examples">
-            <h3>📝 Приклади для тесту:</h3>
-            <code class="example-hash" onclick="fillHash(this.textContent)">bafkreifpxmsccr4by7nhwnubwtjur4ofajchqouj6xhmw5oq7v6zlggoby</code>
-            <code class="example-hash" onclick="fillHash(this.textContent)">bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi</code>
-            <code class="example-hash" onclick="fillHash(this.textContent)">QmYwAPJzv5CZsnA625s3Xf2nemtYgFbymr1</code>
-        </div>
     </div>
 
     <script>
-        function fillHash(hash) {
-            document.getElementById('hashInput').value = hash;
-            verifyHash();
-        }
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const resultDiv = document.getElementById('result');
+        const loader = document.getElementById('loader');
 
-        function verifyHash() {
-            const hash = document.getElementById('hashInput').value.trim();
-            const resultDiv = document.getElementById('result');
+        // Клік на зону завантаження
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        // Вибір файлу
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Drag & Drop
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
             
-            if (!hash) {
-                resultDiv.style.display = 'none';
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('❌ Будь ласка, виберіть файл зображення!');
                 return;
             }
 
-            const validation = validateIPFSHash(hash);
-            
-            resultDiv.style.display = 'block';
-            resultDiv.className = `result ${validation.valid ? 'valid' : 'invalid'}`;
-            
-            let html = `
-                <div class="result-title">
-                    <span class="icon">${validation.valid ? '✅' : '❌'}</span>
-                    <span>${validation.valid ? 'Валідний IPFS хеш!' : 'Невалідний хеш'}</span>
-                </div>
-                <div class="result-details">
-                    <div><strong>Тип:</strong> ${validation.type || 'Невідомо'}</div>
-                    <div><strong>Версія CID:</strong> ${validation.version || 'N/A'}</div>
-                    <div><strong>Довжина:</strong> ${hash.length} символів</div>
-                    <div><strong>Формат:</strong> ${validation.format || 'Невідомо'}</div>
-                    ${validation.error ? `<div style="color: #ff6b9d;"><strong>Помилка:</strong> ${validation.error}</div>` : ''}
-                </div>
-            `;
-            
-            if (validation.valid) {
-                html += '<div class="avatar-preview" id="avatarPreview"></div>';
-            }
-            
-            resultDiv.innerHTML = html;
-            
-            if (validation.valid) {
-                generateAvatar(hash);
-            }
-        }
-
-        function validateIPFSHash(hash) {
-            // CIDv0 (Qm...)
-            if (hash.startsWith('Qm')) {
-                const base58Regex = /^Qm[1-9A-HJ-NP-Za-km-z]{44}$/;
-                return {
-                    valid: base58Regex.test(hash),
-                    type: 'CIDv0',
-                    version: 'v0',
-                    format: 'Base58 (SHA-256)',
-                    error: base58Regex.test(hash) ? null : 'Невалідний Base58 формат'
-                };
-            }
-            
-            // CIDv1 (baf...)
-            if (hash.startsWith('baf')) {
-                const base32Regex = /^baf[a-z2-7]{50,}$/;
-                const isValid = base32Regex.test(hash);
-                return {
-                    valid: isValid,
-                    type: 'CIDv1',
-                    version: 'v1',
-                    format: 'Base32',
-                    error: isValid ? null : 'Невалідний Base32 формат'
-                };
-            }
-            
-            return {
-                valid: false,
-                error: 'Хеш повинен починатися з "Qm" (CIDv0) або "baf" (CIDv1)'
+            // Показуємо превью
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewContainer.style.display = 'block';
+                extractHashFromImage(e.target.result);
             };
+            reader.readAsDataURL(file);
         }
 
-        function generateAvatar(seed) {
-            const canvas = document.createElement('canvas');
-            const size = 300;
-            canvas.width = size;
-            canvas.height = size;
-            canvas.className = 'avatar-canvas';
-            const ctx = canvas.getContext('2d');
-            
-            // Генеруємо hash bytes
-            const hashBytes = simpleHash(seed);
-            
-            function get(n) {
-                return hashBytes[n % hashBytes.length];
-            }
-            
-            // PUHLYA кольори 🍩
-            const colors = [
-                [255, 105, 180],  // Hot Pink
-                [255, 182, 193],  // Light Pink
-                [255, 220, 120],  // Глазур
-                [255, 240, 180],  // Кремовий
-                [200, 100, 255],  // Фіолетовий
-            ];
-            
-            // Темний фон
-            ctx.fillStyle = '#280a1e';
-            ctx.fillRect(0, 0, size, size);
-            
-            const cell = 43;
-            const padding = 5;
-            const grid = 7;
-            const centerX = size / 2;
-            const centerY = size / 2;
-            const donutOuter = size / 2 - 10;
-            const donutInner = size / 4;
-            
-            for (let i = 0; i < grid * grid / 2 + 1; i++) {
-                const x = i % grid;
-                const y = Math.floor(i / grid);
-                const x2 = grid - 1 - x;
-                
-                const px = x * cell + padding;
-                const py = y * cell + padding;
-                const px2 = x2 * cell + padding;
-                
-                const dist = Math.sqrt(Math.pow(px + cell/2 - centerX, 2) + Math.pow(py + cell/2 - centerY, 2));
-                const dist2 = Math.sqrt(Math.pow(px2 + cell/2 - centerX, 2) + Math.pow(py + cell/2 - centerY, 2));
-                
-                if (dist > donutInner && dist < donutOuter) {
-                    const color = colors[get(i + y) % colors.length];
-                    const brightness = 180 + get(i + x + y) % 75;
-                    
-                    const r = Math.min(255, color[0] + brightness / 4);
-                    const g = Math.min(255, color[1] + brightness / 4);
-                    const b = color[2];
-                    
-                    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                    roundRect(ctx, px, py, cell - padding, cell - padding, 10);
+        function extractHashFromImage(imageSrc) {
+            loader.classList.add('active');
+            resultDiv.style.display = 'none';
+
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                try {
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const pixels = imageData.data;
+
+                    // Збираємо LSB біти
+                    let binaryData = '';
+                    for (let i = 0; i < pixels.length; i += 4) {
+                        binaryData += (pixels[i] & 1).toString();     // R
+                        binaryData += (pixels[i + 1] & 1).toString(); // G
+                        binaryData += (pixels[i + 2] & 1).toString(); // B
+                    }
+
+                    // Конвертуємо у текст
+                    let message = '';
+                    for (let i = 0; i < binaryData.length; i += 8) {
+                        const byte = binaryData.substr(i, 8);
+                        if (byte.length === 8) {
+                            const char = String.fromCharCode(parseInt(byte, 2));
+                            message += char;
+
+                            if (message.endsWith(':END')) {
+                                break;
+                            }
+                        }
+                    }
+
+                    loader.classList.remove('active');
+
+                    // Перевіряємо маркер PUHLYA
+                    if (message.startsWith('PUHLYA:') && message.endsWith(':END')) {
+                        const hash = message.substring(7, message.length - 4);
+                        displayResult(true, hash, img.width, img.height, binaryData.length);
+                    } else {
+                        displayResult(false, null, img.width, img.height);
+                    }
+                } catch (error) {
+                    loader.classList.remove('active');
+                    displayResult(false, null, img.width, img.height, null, error.message);
                 }
-                
-                if (x !== x2 && dist2 > donutInner && dist2 < donutOuter) {
-                    const color = colors[get(i + y) % colors.length];
-                    const brightness = 180 + get(i + x + y) % 75;
-                    
-                    const r = Math.min(255, color[0] + brightness / 4);
-                    const g = Math.min(255, color[1] + brightness / 4);
-                    const b = color[2];
-                    
-                    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                    roundRect(ctx, px2, py, cell - padding, cell - padding, 10);
-                }
+            };
+            img.src = imageSrc;
+        }
+
+        function displayResult(found, hash, width, height, bitsAnalyzed, error) {
+            resultDiv.style.display = 'block';
+            resultDiv.className = `result ${found ? 'found' : 'not-found'}`;
+
+            if (found) {
+                resultDiv.innerHTML = `
+                    <div class="result-title">
+                        <span style="font-size: 1.5em;">✅</span>
+                        <span>IPFS хеш знайдено!</span>
+                    </div>
+                    <div class="hash-display">
+                        <strong>🔐 IPFS Hash:</strong><br>
+                        <span id="hashText">${hash}</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyHash('${hash}')">
+                        📋 Скопіювати хеш
+                    </button>
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-label">Розмір зображення</div>
+                            <div class="stat-value">${width} × ${height}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Довжина хешу</div>
+                            <div class="stat-value">${hash.length} символів</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Тип</div>
+                            <div class="stat-value">${hash.startsWith('bafkrei') ? 'CIDv1' : hash.startsWith('Qm') ? 'CIDv0' : 'Unknown'}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result-title">
+                        <span style="font-size: 1.5em;">⚠️</span>
+                        <span>Хеш не знайдено</span>
+                    </div>
+                    <div style="margin-top: 15px; color: #ffb6c1;">
+                        ${error ? `<strong>Помилка:</strong> ${error}` : 'У цьому зображенні немає прихованого IPFS хешу, або він пошкоджений.'}
+                    </div>
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-label">Розмір зображення</div>
+                            <div class="stat-value">${width} × ${height}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Пікселів проаналізовано</div>
+                            <div class="stat-value">${width * height}</div>
+                        </div>
+                    </div>
+                `;
             }
-            
-            document.getElementById('avatarPreview').innerHTML = '<h3 style="color: #ffd700; margin-bottom: 15px;">🎨 Твоя донатна аватарка:</h3>';
-            document.getElementById('avatarPreview').appendChild(canvas);
         }
 
-        function roundRect(ctx, x, y, width, height, radius) {
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.lineTo(x + width - radius, y);
-            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-            ctx.lineTo(x + width, y + height - radius);
-            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-            ctx.lineTo(x + radius, y + height);
-            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-            ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y);
-            ctx.closePath();
-            ctx.fill();
+        function copyHash(hash) {
+            navigator.clipboard.writeText(hash).then(() => {
+                alert('✅ Хеш скопійовано в буфер обміну!');
+            }).catch(() => {
+                alert('❌ Не вдалося скопіювати');
+            });
         }
-
-        function simpleHash(str) {
-            const bytes = [];
-            for (let i = 0; i < 32; i++) {
-                let hash = 0;
-                for (let j = 0; j < str.length; j++) {
-                    hash = ((hash << 5) - hash) + str.charCodeAt(j) + i;
-                    hash = hash & hash;
-                }
-                bytes.push(Math.abs(hash) % 256);
-            }
-            return bytes;
-        }
-
-        // Автоматична перевірка при завантаженні
-        window.onload = function() {
-            verifyHash();
-        };
     </script>
 </body>
 </html>
