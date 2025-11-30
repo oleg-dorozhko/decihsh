@@ -62,7 +62,7 @@
     const hex = Array.from(bytes, b=>b.toString(16).padStart(2,'0')).join('');
     const expected = "bafkreifpxmsccr4by7nhwnubwtjur4ofajchqouj6xhmw5oq7v6zlggoby";
 
-    if(hex.includes(expected)){
+    if(hex.includes(expected)) {
       result.innerHTML = `
         <b>Знайдено оригінальний IPFS-хеш!</b><br><br>
         <code style="font-size:120%; background:#000; padding:10px; border-radius:8px">
